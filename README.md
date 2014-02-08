@@ -1,74 +1,45 @@
 flume-ng-mongodb-sink
 =============
-Flume NG MongoDB sink. The source was implemented to populate JSON into MongoDB.
+### 针对nginx的日志，修改MongoSink。
+nginx的日志格式配置代码
+	http {
+		...
+		userid on;
+		log_format main '$remote_addr^$time_local^$request^$status^$body_bytes_sent^$http_referer^$http_user_agent^$uid_got  $http_cookie';
+		access_log  logs/access.log  main;
+		...
+	}
+	
+filename：nginx.access.flume
+	
+	agent1.sources = ngrinder
+	agent1.sources.ngrinder.type = exec 
+	agent1.sources.ngrinder.command = tail -F /home/nginx/logs/access.log
+	agent1.sources.ngrinder.channels = mc1
+	agent1.channels = mc1
+	agent1.channels.mc1.type = memory
+	agent1.channels.mc1.capacity = 100
+	agent1.sinks = sink2
+	agent1.sinks.avro-sink.type = avro
+	agent1.sinks.avro-sink.channel = mc1
+	agent1.sinks.avro-sink.hostname = 192.168.9.33
+	agent1.sinks.avro-sink.port = 4545
+	agent1.sinks.sink2.type = org.riderzen.flume.sink.MongoSink
+	agent1.sinks.sink2.host = you.mongodb.ip
+	agent1.sinks.sink2.port = 27017
+	agent1.sinks.sink2.model = single
+	agent1.sinks.sink2.autoWrap=true
+	agent1.sinks.sink2.db=qegoo
+	agent1.sinks.sink2.collection = nginxlog
+	agent1.sinks.sink2.batch = 100
+	agent1.sinks.sink2.channel = mc1    
+
+### 运行flume
 
 
-## Getting Started
-- - -
-1. Clone the repository
-2. Install latest Maven and build source by 'mvn package'
-3. Generate classpath by 'mvn dependency:build-classpath'
-4. Append classpath in $FLUME_HOME/conf/flume-env.sh
-5. Add the sink definition according to **Configuration**
+命令 ：/home/flume/apache-flume-1.4.0-bin/bin/flume-ng agent -c conf -f /home/flume/conf/nginx.access.flume  -n agent1
 
-## Configuration
-- - - 
-	type: org.riderzen.flume.sink.MongoSink
-	host: db host [localhost]
-	port: db port [27017]
-	username: db username []
-	password: db password []
-	model: single or dynamic, single mean all data will insert into the same collection,
-	    and dynamic means every event will specify cllection name by event header 'collection' [single]
-	db: db name [events]
-	collection: default collection name, will used in single model [events]
-	batch: batch size of insert opertion [100]
-	autoWrap: indicator of wrap the event body as a JSONObject that has one field [false]
-	wrapField: use with autoWrap, set the field name of JSONObject [log]
-	timestampField: date type field that record the creating time of record,
-	    it can be a existing filed name that the sink will convert this filed to date type,
-	    or it's a new filed name that the sink will create it automatically []
-        the supported date pattern as follows:
-            "yyyy-MM-dd"
-            "yyyy-MM-dd HH:mm:ss"
-            "yyyy-MM-dd HH:mm:ss.SSS"
-            "yyyy-MM-dd HH:mm:ss Z"
-            "yyyy-MM-dd HH:mm:ss.SSS Z"
-            "yyyy-MM-dd'T'HH:mm:ssZ"
-            "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-            "yyyy-MM-dd'T'HH:mm:ssz"
-            "yyyy-MM-dd'T'HH:mm:ss.SSSz"
-    authenticationEnabled: true means login by username/password, false means login without authentication [false]
-    username: required when "authenticationEnabled" is true []
-    password: required when "authenticationEnabled" is true []
 
-### flume.conf sample
-- - -
-	agent2.sources = source2
-	agent2.channels = channel2
-	agent2.sinks = sink2
-	
-	agent2.sources.source2.type = org.riderzen.flume.source.MsgPackSource
-	agent2.sources.source2.bind = localhost
-	agent2.sources.source2.port = 1985
-	
-	agent2.sources.source2.channels = channel2
-	
-	agent2.sinks.sink2.type = org.riderzen.flume.sink.MongoSink
-	agent2.sinks.sink2.host = localhost
-	agent2.sinks.sink2.port = 27017
-	agent2.sinks.sink2.model = single
-	agent2.sinks.sink2.collection = events
-	agent2.sinks.sink2.batch = 100
-	
-	agent2.sinks.sink2.channel = channel2
-	
-	agent2.channels.channel2.type = memory
-	agent2.channels.channel2.capacity = 1000000
-	agent2.channels.channel2.transactionCapacity = 800
-	agent2.channels.channel2.keep-alive = 3
 
-### Event Headers
-    The sink supports some headers in dynamic model:
-    'db': db name
-    'collection' : collection name
+
+
