@@ -27,10 +27,6 @@ filename：nginx.access.flume
 	agent1.channels.mc1.type = memory
 	agent1.channels.mc1.capacity = 100
 	agent1.sinks = sink2
-	agent1.sinks.avro-sink.type = avro
-	agent1.sinks.avro-sink.channel = mc1
-	agent1.sinks.avro-sink.hostname = 192.168.9.33
-	agent1.sinks.avro-sink.port = 4545
 	agent1.sinks.sink2.type = org.riderzen.flume.sink.MongoSink
 	agent1.sinks.sink2.host = you.mongodb.ip
 	agent1.sinks.sink2.port = 27017
@@ -38,9 +34,16 @@ filename：nginx.access.flume
 	agent1.sinks.sink2.autoWrap=true
 	agent1.sinks.sink2.db=qegoo
 	agent1.sinks.sink2.collection = nginxlog
-	agent1.sinks.sink2.grep=search 
+	search.sinks.sink2.search=search
 	agent1.sinks.sink2.batch = 100
 	agent1.sinks.sink2.channel = mc1    
+	
+### 配置说明  
+	search.sinks.sink2.search    =search
+	在请求的url中进行查询，如果存在 “search”则记录日志。否者放弃。
+	
+	
+	
 
 ### 运行flume
 

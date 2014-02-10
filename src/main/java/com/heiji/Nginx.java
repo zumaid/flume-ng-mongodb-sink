@@ -20,6 +20,19 @@ public class Nginx {
 
 	}
 
+	public static DBObject getJson(String log,String grep) {
+		DBObject _b =getJson(log);
+		
+		if("".equals(grep)||(_b.get("url").toString()).indexOf(grep)>0){
+			return _b;
+		}else{
+			return null;
+		}
+		
+	}
+	
+	
+	
 	public static DBObject getJson(String log) {
 		String tempa = log;
 		String[] aa = tempa.split("\\^");
