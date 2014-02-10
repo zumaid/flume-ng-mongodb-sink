@@ -3,11 +3,11 @@ flume-ng-mongodb-sink
 ### 针对nginx的日志，修改MongoSink。
 nginx的日志格式配置代码
 	http {
-		...
-		userid on;
-		log_format main '$remote_addr^$time_local^$request^$status^$body_bytes_sent^$http_referer^$http_user_agent^$uid_got  $http_cookie';
-		access_log  logs/access.log  main;
-		...
+	...
+	userid on;
+	log_format main '$remote_addr^$time_local^$request^$status^$body_bytes_sent^$http_referer^$http_user_agent^$uid_got  $http_cookie';
+	access_log  logs/access.log  main;
+	...
 	}
 	
 filename：nginx.access.flume
