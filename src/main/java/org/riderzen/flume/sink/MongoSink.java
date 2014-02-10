@@ -1,9 +1,19 @@
 package org.riderzen.flume.sink;
 
-import com.mongodb.*;
-import com.mongodb.util.JSON;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.flume.*;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.flume.EventDeliveryException;
+import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 import org.joda.time.format.DateTimeFormat;
@@ -13,9 +23,17 @@ import org.joda.time.format.DateTimeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.heiji.Nginx;
+import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.CommandResult;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.Mongo;
+import com.mongodb.MongoException;
+import com.mongodb.WriteConcern;
+import com.mongodb.util.JSON;
 
 /**
  * User: guoqiang.li
@@ -85,13 +103,18 @@ public class MongoSink extends AbstractSink implements Configurable {
     private boolean autoWrap;
     private String wrapField;
     private String timestampField;
-
+    private String grep;
+/**
+ * 
+ */
     @Override
     public void configure(Context context) {
         setName(NAME_PREFIX + counter.getAndIncrement());
 
         host = context.getString(HOST, DEFAULT_HOST);
         port = context.getInteger(PORT, DEFAULT_PORT);
+        grep= context.getString("grep", "");
+        
         authentication_enabled = context.getBoolean(AUTHENTICATION_ENABLED, DEFAULT_AUTHENTICATION_ENABLED);
         if (authentication_enabled) {
             username = context.getString(USERNAME);
@@ -172,7 +195,19 @@ public class MongoSink extends AbstractSink implements Configurable {
                     return;
                 }
             }
-            CommandResult result = db.getCollection(collectionName).insert(docs, WriteConcern.NORMAL).getLastError();
+            
+            //CommandResult result = db.getCollection(collectionName).insert(docs, WriteConcern.NORMAL).getLastError();
+            
+            List<DBObject> docs_heiji= new ArrayList<DBObject>(); 
+            for(DBObject a:docs){
+            	DBObject _a=a;
+            	String tempa=(String) _a.get("log"); 
+            	if("".equals(grep)||tempa.indexOf(grep)>0){
+            		docs_heiji.add(Nginx.getJson(tempa));
+            	} 
+            }
+            
+            CommandResult result =db.getCollection(collectionName).insert(docs_heiji, WriteConcern.NORMAL).getLastError();
             if (result.ok()) {
                 String errorMessage = result.getErrorMessage();
                 if (errorMessage != null) {

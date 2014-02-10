@@ -6,10 +6,6 @@ flume-ng-mongodb-sink
 ===待完成===
 	后续会增加针对tomcat日，linux系统日志的分析。
 	
-	
-	
-
-
 
 ### 针对nginx的日志，修改MongoSink。
 nginx的日志格式配置代码
@@ -42,6 +38,7 @@ filename：nginx.access.flume
 	agent1.sinks.sink2.autoWrap=true
 	agent1.sinks.sink2.db=qegoo
 	agent1.sinks.sink2.collection = nginxlog
+	agent1.sinks.sink2.grep=search 
 	agent1.sinks.sink2.batch = 100
 	agent1.sinks.sink2.channel = mc1    
 
