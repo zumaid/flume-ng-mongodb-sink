@@ -1,5 +1,16 @@
 flume-ng-mongodb-sink
 =============
+
+### 主要功能介绍
+	利用flume将nginx的日志记录到mongodb。并且将数据格式化json数据，方便制作报表和统计。
+===待完成===
+	后续会增加针对tomcat日，linux系统日志的分析。
+	
+	
+	
+
+
+
 ### 针对nginx的日志，修改MongoSink。
 nginx的日志格式配置代码
 	http {
